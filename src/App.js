@@ -1,6 +1,8 @@
 import React from 'react';
 import Cart from './Cart';
 import Navbar from './Navbar';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
 class App extends React.Component {
 
@@ -8,32 +10,49 @@ class App extends React.Component {
     super();
     this.state = {
       products: [
-        {
-          price: 99,
-          title: 'Watch',
-          qty: 1,
-          img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-          id: 1
-        },
-        {
-          price: 999,
-          title: 'Mobile Phone',
-          qty: 10,
-          img: 'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/uk/advisor/wp-content/uploads/2020/11/phones-switch-apps.jpg',
-          id: 2
-        },
-        {
-          price: 999,
-          title: 'Laptop',
-          qty: 4,
-          img: 'https://www.barclays.lk/mmBC/Images/LAPA9021.jpg',
-          id: 3
-        }
-      ]
+        // {
+        //   price: 99,
+        //   title: 'Watch',
+        //   qty: 1,
+        //   img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        //   id: 1
+        // },
+        // {
+        //   price: 999,
+        //   title: 'Mobile Phone',
+        //   qty: 10,
+        //   img: 'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/uk/advisor/wp-content/uploads/2020/11/phones-switch-apps.jpg',
+        //   id: 2
+        // },
+        // {
+        //   price: 999,
+        //   title: 'Laptop',
+        //   qty: 4,
+        //   img: 'https://www.barclays.lk/mmBC/Images/LAPA9021.jpg',
+        //   id: 3
+        // }
+      ],
+      loading: true
     }
     // this.increaseQuantity = this.increaseQuantity.bind(this);
     // this.testing();
   }
+
+  componentDidMount(){
+    firebase
+    .firestore()
+    .collection("products")
+    .get()
+    .then(snapshot => {
+      const products = snapshot.docs.map(doc => {
+        const data = doc.data();
+        data["id"] = doc.id;
+        return data;
+      })
+      this.setState({products:products, loading: false});
+    })
+  }
+
   handleIncreaseQuantity = (product) => {
     console.log('Heyy please inc the qty of ', product);
     const { products } = this.state;
@@ -93,7 +112,7 @@ class App extends React.Component {
   }
 
   render () {
-    const { products } = this.state;
+    const { products, loading } = this.state;
     return (
       <div className="App">
         <Navbar count={this.getCartCount()} />
@@ -103,6 +122,7 @@ class App extends React.Component {
           onDecreaseQuantity={this.handleDecreaseQuantity}
           onDeleteProduct={this.handleDeleteProduct}
         />
+        {loading && <h1>Loading Products</h1>}
         <div style={{padding:10, fontSize:30}}>TOTAL: {this.getCartTotal()}</div>
       </div>
     );
