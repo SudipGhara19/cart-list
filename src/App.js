@@ -42,8 +42,7 @@ class App extends React.Component {
     firebase
     .firestore()
     .collection("products")
-    .get()
-    .then(snapshot => {
+    .onSnapshot(snapshot => {
       const products = snapshot.docs.map(doc => {
         const data = doc.data();
         data["id"] = doc.id;
@@ -106,7 +105,7 @@ class App extends React.Component {
     let cartTotal = 0
 
     products.map((product) => {
-      cartTotal = cartTotal + product.qty * product.price
+      cartTotal = cartTotal + product.qty * product.price;
     })
     return cartTotal;
   }
