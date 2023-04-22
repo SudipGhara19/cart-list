@@ -42,6 +42,9 @@ class App extends React.Component {
   componentDidMount(){
     this.db
     .collection("products")
+    // .where('price', '==', 999)                   //filter by price
+    // // .where('title', '==', 'Mobile Phone')     //filter by name
+    // .orderBy('price', 'asc')                     //filter by price increasing order
     .onSnapshot(snapshot => {
       const products = snapshot.docs.map(doc => {
         const data = doc.data();
