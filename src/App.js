@@ -33,14 +33,14 @@ class App extends React.Component {
         // }
       ],
       loading: true
-    }
+    };
+    this.db = firebase.firestore();
     // this.increaseQuantity = this.increaseQuantity.bind(this);
     // this.testing();
   }
 
   componentDidMount(){
-    firebase
-    .firestore()
+    this.db
     .collection("products")
     .onSnapshot(snapshot => {
       const products = snapshot.docs.map(doc => {
@@ -110,6 +110,26 @@ class App extends React.Component {
     return cartTotal;
   }
 
+
+  addProduct = () => {
+    this.db
+    .collection('products')
+    .add({
+      img: '',
+      price: 999,
+      qty: 3,
+      title: 'Laptop'
+    })
+    .then(docRef => {
+      docRef.get().then(snapshot => {
+        console.log('product has been added', snapshot.data)
+      })
+    })
+    .catch(error => {
+      console.log('Error : ', error)
+    })
+  }
+
   render () {
     const { products, loading } = this.state;
     return (
@@ -122,6 +142,7 @@ class App extends React.Component {
           onDeleteProduct={this.handleDeleteProduct}
         />
         {loading && <h1>Loading Products</h1>}
+        <button onClick={this.addProduct} style={{padding:20, fontSize:20, color:'grey'}}>Add a Product</button>
         <div style={{padding:10, fontSize:30}}>TOTAL: {this.getCartTotal()}</div>
       </div>
     );
