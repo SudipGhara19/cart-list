@@ -1,6 +1,7 @@
 import React from 'react';
 import Cart from './Cart';
 import Navbar from './Navbar';
+// import CartItem from './CartItem';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
@@ -10,27 +11,27 @@ class App extends React.Component {
     super();
     this.state = {
       products: [
-        // {
-        //   price: 99,
-        //   title: 'Watch',
-        //   qty: 1,
-        //   img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        //   id: 1
-        // },
-        // {
-        //   price: 999,
-        //   title: 'Mobile Phone',
-        //   qty: 10,
-        //   img: 'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/uk/advisor/wp-content/uploads/2020/11/phones-switch-apps.jpg',
-        //   id: 2
-        // },
-        // {
-        //   price: 999,
-        //   title: 'Laptop',
-        //   qty: 4,
-        //   img: 'https://www.barclays.lk/mmBC/Images/LAPA9021.jpg',
-        //   id: 3
-        // }
+        {
+          price: 99,
+          title: 'Watch',
+          qty: 1,
+          img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+          id: 1
+        },
+        {
+          price: 999,
+          title: 'Mobile Phone',
+          qty: 10,
+          img: 'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/uk/advisor/wp-content/uploads/2020/11/phones-switch-apps.jpg',
+          id: 2
+        },
+        {
+          price: 999,
+          title: 'Laptop',
+          qty: 4,
+          img: 'https://www.barclays.lk/mmBC/Images/LAPA9021.jpg',
+          id: 3
+        }
       ],
       loading: true
     };
@@ -50,9 +51,9 @@ class App extends React.Component {
         const data = doc.data();
         data["id"] = doc.id;
         return data;
-      })
+      });
       this.setState({products:products, loading: false});
-    })
+    });
   }
 
   handleIncreaseQuantity = (product) => {
@@ -61,18 +62,23 @@ class App extends React.Component {
     const index = products.indexOf(product);
 
     // 
-    const docRef = this.db.collection('products').doc(products[index].id);
+    products[index].qty += 1;
 
-    docRef
-    .update({
-      qty: products[index].qty + 1
+    this.setState({
+      products
     })
-    .then(() => {
-      console.log('successfully updated')
-    })
-    .catch((error) => {
-      console.log('Error: ', error)
-    })
+    // const docRef = this.db.collection('products').doc(products[index].id);
+
+    // docRef
+    // .update({
+    //   qty: products[index].qty + 1
+    // })
+    // .then(() => {
+    //   console.log('successfully updated')
+    // })
+    // .catch((error) => {
+    //   console.log('Error: ', error)
+    // })
   }
 
 
@@ -85,34 +91,34 @@ class App extends React.Component {
       return;
     }
 
-    // products[index].qty -= 1;
+    products[index].qty -= 1;
 
-    // this.setState({
-    //   products
+    this.setState({
+      products
+    })
+    // const docRef = this.db.collection('products').doc(products[index].id);
+
+    // docRef
+    // .update({
+    //   qty: products[index].qty - 1
     // })
-    const docRef = this.db.collection('products').doc(products[index].id);
-
-    docRef
-    .update({
-      qty: products[index].qty - 1
-    })
-    .then(() => {
-      console.log('successfully updated')
-    })
-    .catch((error) => {
-      console.log('Error: ', error)
-    })
+    // .then(() => {
+    //   console.log('successfully updated')
+    // })
+    // .catch((error) => {
+    //   console.log('Error: ', error)
+    // })
   }
 
 
   handleDeleteProduct = (id) => {
     const { products } = this.state;
 
-    // const items = products.filter((item) => item.id !== id); // [{}]
+    const items = products.filter((item) => item.id !== id); // [{}]
 
-    // this.setState({
-    //   products: items
-    // })
+    this.setState({
+      products: items
+    })
     const docRef = this.db.collection('products').doc(id);
 
     docRef
@@ -141,9 +147,12 @@ class App extends React.Component {
     const {products} = this.state;
     let cartTotal = 0
 
-    products.map((product) => {
-      cartTotal = cartTotal + product.qty * product.price;
-    })
+    products.map(product => {
+      if (product.qty > 0) {
+        cartTotal = cartTotal + product.qty * product.price;
+      }
+      return "";
+    });
     return cartTotal;
   }
 
@@ -173,12 +182,13 @@ class App extends React.Component {
       <div className="App">
         <Navbar count={this.getCartCount()} />
         <Cart
-          products={products}
+          
           onIncreaseQuantity={this.handleIncreaseQuantity}
           onDecreaseQuantity={this.handleDecreaseQuantity}
           onDeleteProduct={this.handleDeleteProduct}
+          products={products}
         />
-        {loading && <h1>Loading Products</h1>}
+        {loading && <h1>Loading Products...</h1>}
         <button onClick={this.addProduct} style={{padding:20, fontSize:20, color:'grey'}}>Add a Product</button>
         <div style={{padding:10, fontSize:30}}>TOTAL: {this.getCartTotal()}</div>
       </div>
